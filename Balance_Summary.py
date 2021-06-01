@@ -57,6 +57,9 @@ def feed_data(display):
         for num, value in enumerate(all_cur_json):
             if float(value["total"]) != 0:
                 display.curr_check[num] = value["currencySymbol"]
+            if float(value["total"]) == 0 and value["currencySymbol"] in display.curr_check.values():
+                display.curr_check.pop(num)
+
         for currency in all_cur_json:
             if currency["currencySymbol"] == "BTC":
                 current_worth = round(BTC_price_USD * float(currency["total"]))
@@ -71,7 +74,7 @@ def feed_data(display):
                 display.name_change_24h[currency["currencySymbol"]] = change_24h
                 display.stream[currency["currencySymbol"]] = stream
 
-            if float(currency["total"]) != 0 and currency["currencySymbol"] not in ("BTC", "BTXCRD"):
+            if float(currency["total"]) != 0 and currency["currencySymbol"] not in ("BTC", "BTXCRD", "USD"):
                 trades = _data_return(over_all_trades.format(currency["currencySymbol"]))
                 stream = len([trade_buy for trade_buy in trades if trade_buy['takerSide'] == "BUY"]) > len(
                     [trade_sell for trade_sell in trades if trade_sell['takerSide'] == "SELL"])
@@ -86,7 +89,7 @@ def feed_data(display):
                 display.stream[currency["currencySymbol"]] = stream
 
         display.total = total
-        time.sleep(4)
+        time.sleep(20)
 
 
 class Currency(object):
@@ -104,8 +107,9 @@ class Currency(object):
 
     def display(self):
         while True:
-
+            system("cls")
             print('\33[34m' + "+++Wallet OverView+++" + '\033[0m')
+
             for key in sorted(self.name_worth.keys()):
                 if key in self.curr_check.values():
                     amount_str = "{} Amount: {}".format(key, str(self.name_amount[key])[:6])
@@ -131,8 +135,8 @@ class Currency(object):
                                                                                    CEND1,
                                                                                    change_24h+" "*(30-len(change_24h)), arrow))
             print(CRED_GREEN + "Total : {}$".format(str(self.total)[:7]) + CEND)
-            time.sleep(3)
-            system("cls")
+            time.sleep(1)
+
 
 
 if __name__ == '__main__':
